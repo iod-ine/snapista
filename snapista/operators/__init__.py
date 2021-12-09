@@ -8,3 +8,4 @@ This version of snapista is my personal take on what is originally presented her
 from snapista.operators.operator import Operator
 
 from snapista.operators.subset import Subset
+from snapista.operators.reproject import Reproject
