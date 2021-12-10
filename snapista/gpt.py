@@ -9,13 +9,12 @@ This version of snapista is my personal take on what is originally presented her
 
 """
 
+import re
 import pathlib
-import logging
 import zipfile
 import tempfile
+import textwrap
 import subprocess
-
-logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.DEBUG)
 
 
 class GPT:
@@ -45,7 +44,8 @@ class GPT:
     def __repr__(self):
         return f'{self.gpt.as_posix()}'
 
-    def run(self, graph, input_file, output_folder='proc', extension='dim'):
+    def run(self, graph, input_file, output_folder='proc', extension='dim', date_only=False, date_time_only=False,
+            suffix=None, suppress_stderr=True):
         """ Run the graph for the input.
 
          Args:
@@ -53,6 +53,10 @@ class GPT:
              input_file (str): Path to the input file.
              output_folder (str): Folder to save the output to.
              extension (str): The extension of the output.
+             date_only (bool): Drop everything except the date (and suffix) from the output name.
+             date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
+             suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
+             suppress_stderr (bool): Redirect the stderr of the gpt call to /dev/null.
 
          """
 
@@ -61,27 +65,60 @@ class GPT:
         with tempfile.TemporaryDirectory() as temp_dir:
             base = pathlib.Path(temp_dir)
             graph_file = base / 'graph.xml'
-            output_file = self._get_output_name(input_file, output_folder, graph.suffix, extension)
+            suffix = graph.suffix if suffix is None else suffix
+
+            output_file = pathlib.Path(output_folder)
+            output_file.mkdir(exist_ok=True)
+
+            if date_only:
+                date_regex = re.compile(r'(\d{4})(\d{2})(\d{2})T\d{6}')
+                date = date_regex.findall(str(input_file))[0]
+                output_file = output_file / f'{date[0]}-{date[1]}-{date[2]}{suffix}.{extension}'
+            elif date_time_only:
+                date_time_regex = re.compile(r'(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})')
+                date_time = date_time_regex.findall(str(input_file))[0]
+                output_file = output_file / ('{}-{}-{}T{}-{}-{}'.format(*date_time) + f'{suffix}.{extension}')
+            else:
+                output_file = output_file / (input_file.stem + f'{suffix}.{extension}')
+
+            # Sentinel-3 is a special snowflake in terms of reading in the products.
+            # GPT and SNAP refuse to open Sentinel-3 archives and only open the xfdumanifest.xml
+            # file that is within the product folder.
+
+            # TODO: replace the full name with a short summary, i.e. S3 OLCI WFR from <date>
+            print(f'⏳ {input_file.stem}')
 
             if input_file.match('*S3*.zip'):
-                logging.debug('Detected Sentinel-3 archive. Extracting to a temporary location...')
-
                 with zipfile.ZipFile(input_file) as zf:
                     zf.extractall(temp_dir)
-
                 input_file = base / (input_file.stem + '.SEN3') / 'xfdumanifest.xml'
-
-                logging.debug(f'Done. Changed input file to {input_file}.')
             elif input_file.match('*S3*.SEN3'):
-                logging.debug('Detected Sentinel-3 folder. ')
                 input_file = input_file / 'xfdumanifest.xml'
 
             graph.save(graph_file)
 
-            logging.info('Calling gpt...')
-            subprocess.run([self.gpt, str(graph_file), f'-Ssource={input_file}', '-t', output_file])
+            process = subprocess.run(
+                [self.gpt, str(graph_file), f'-Ssource={input_file}', '-t', output_file],
+                stderr=subprocess.PIPE if suppress_stderr else None,
+            )
 
-    def run_iter(self, graph, input_list, output_folder='proc', extension='dim'):
+            if suppress_stderr:
+                # move at the beginning of 3rd line up, clear line
+                print(f'\033[3F\033[J', end='')
+
+            if process.returncode == 0:
+                # green checkmark, reset color
+                print(f'\033[32m✔\033[0m {output_file.name}')
+            else:
+                # red cross, reset color
+                print(f'\033[31m✗\033[0m {output_file.name}')
+                error_regex = re.compile(r'Error: (.*)')
+                error = error_regex.findall(process.stderr.decode())[0]
+                error = '\n'.join(f'    {line}' for line in textwrap.wrap(error, width=66))
+                print(error)
+
+    def run_iter(self, graph, input_list, output_folder='proc', extension='dim', date_only=False, date_time_only=False,
+                 suffix=None, suppress_stderr=True):
         """ Run the graph for every input on the input list.
 
          Args:
@@ -89,19 +126,12 @@ class GPT:
              input_list (list of str): List of input paths.
              output_folder (str): Folder to save the output to.
              extension (str): The extension of the output.
+             date_only (bool): Drop everything except the date (and suffix) from the output name.
+             date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
+             suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
+             suppress_stderr (bool): Redirect the stderr of the gpt call to /dev/null.
 
          """
 
         for input_ in input_list:
-            self.run(graph, input_, output_folder, extension)
-
-    @staticmethod
-    def _get_output_name(input_name, output_folder, suffix, extension):
-        input_name = str(input_name).split('/')[-1]
-
-        output = pathlib.Path(output_folder)
-        output.mkdir(exist_ok=True)
-
-        output /= '.'.join(input_name.split('.')[:-1]) + f'{suffix}.{extension}'
-
-        return output
+            self.run(graph, input_, output_folder, extension, date_only, date_time_only, suffix, suppress_stderr)
