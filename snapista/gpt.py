@@ -56,7 +56,7 @@ class GPT:
              date_only (bool): Drop everything except the date (and suffix) from the output name.
              date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
              suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
-             suppress_stderr (bool): Redirect the stderr of the gpt call to /dev/null.
+             suppress_stderr (bool): Capture stderr without printing it.
 
          """
 
@@ -129,7 +129,7 @@ class GPT:
              date_only (bool): Drop everything except the date (and suffix) from the output name.
              date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
              suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
-             suppress_stderr (bool): Redirect the stderr of the gpt call to /dev/null.
+             suppress_stderr (bool): Capture stderr without printing it.
 
          """
 

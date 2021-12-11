@@ -12,8 +12,8 @@ class Operator:
     def __init__(self, name, short_name):
         """ Create an operator for a SNAP gpt graph. """
 
-        self.name = name
-        self.short_name = short_name
+        self.name = name  # used in graph construction
+        self.short_name = short_name  # used for output file suffix
 
     def __repr__(self):
         return f'{self.name}'

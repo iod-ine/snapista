@@ -11,7 +11,7 @@ from snapista.operators import Operator
 
 
 class Reproject(Operator):
-    """ Reprojection of a source product to a target Coordinate Reference System.
+    """ Reproject a source product to a target Coordinate Reference System.
 
     Attributes:
         add_delta_bands (bool): Whether to add delta longitude and latitude bands.
