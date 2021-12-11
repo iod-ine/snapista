@@ -44,27 +44,44 @@ class GPT:
     def __repr__(self):
         return f'{self.gpt.as_posix()}'
 
-    def run(self, graph, input_file, output_folder='proc', extension='dim', date_only=False, date_time_only=False,
-            suffix=None, suppress_stderr=True):
+    def run(self, graph, input_, output_folder='proc', format_='BEAM-DIMAP', date_only=False, date_time_only=False,
+            prefix=None, suffix=None, suppress_stderr=True):
         """ Run the graph for the input.
 
          Args:
              graph (Graph): A snapista Graph object.
-             input_file (str): Path to the input file.
+             input_ (str, os.PathLike, or list): Input or list of inputs.
              output_folder (str): Folder to save the output to.
-             extension (str): The extension of the output.
+             format_ (str): The extension of the output, e.g. 'GeoTIFF', 'HDF5', 'BEAM-DIMAP'.
              date_only (bool): Drop everything except the date (and suffix) from the output name.
              date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
+             prefix (str): Prefix to use for output.
              suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
              suppress_stderr (bool): Capture stderr without printing it.
 
          """
 
-        input_file = pathlib.Path(input_file)
+        if isinstance(input_, list):
+            for product in input_:
+                self.run(
+                    graph=graph,
+                    input_=product,
+                    output_folder=output_folder,
+                    format_=format_,
+                    date_only=date_only,
+                    date_time_only=date_time_only,
+                    prefix=prefix,
+                    suffix=suffix,
+                    suppress_stderr=suppress_stderr,
+                )
+            return
+
+        input_ = pathlib.Path(input_)
 
         with tempfile.TemporaryDirectory() as temp_dir:
             base = pathlib.Path(temp_dir)
             graph_file = base / 'graph.xml'
+            prefix = '' if prefix is None else prefix
             suffix = graph.suffix if suffix is None else suffix
 
             output_file = pathlib.Path(output_folder)
@@ -72,33 +89,33 @@ class GPT:
 
             if date_only:
                 date_regex = re.compile(r'(\d{4})(\d{2})(\d{2})T\d{6}')
-                date = date_regex.findall(str(input_file))[0]
-                output_file = output_file / f'{date[0]}-{date[1]}-{date[2]}{suffix}.{extension}'
+                date = date_regex.findall(str(input_))[0]
+                output_file = output_file / '{}{}-{}-{}{}'.format(prefix, *date, suffix)
             elif date_time_only:
                 date_time_regex = re.compile(r'(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})')
-                date_time = date_time_regex.findall(str(input_file))[0]
-                output_file = output_file / ('{}-{}-{}T{}-{}-{}'.format(*date_time) + f'{suffix}.{extension}')
+                date_time = date_time_regex.findall(str(input_))[0]
+                output_file = output_file / '{}{}-{}-{}T{}-{}-{}{}'.format(prefix, *date_time, suffix)
             else:
-                output_file = output_file / (input_file.stem + f'{suffix}.{extension}')
+                output_file = output_file / f'{prefix}{input_.stem}{suffix}'
 
             # Sentinel-3 is a special snowflake in terms of reading in the products.
             # GPT and SNAP refuse to open Sentinel-3 archives and only open the xfdumanifest.xml
             # file that is within the product folder.
 
             # TODO: replace the full name with a short summary, i.e. S3 OLCI WFR from <date>
-            print(f'⏳ {input_file.stem}')
+            print(f'⏳ {input_.stem}')
 
-            if input_file.match('*S3*.zip'):
-                with zipfile.ZipFile(input_file) as zf:
+            if input_.match('*S3*.zip'):
+                with zipfile.ZipFile(input_) as zf:
                     zf.extractall(temp_dir)
-                input_file = base / (input_file.stem + '.SEN3') / 'xfdumanifest.xml'
-            elif input_file.match('*S3*.SEN3'):
-                input_file = input_file / 'xfdumanifest.xml'
+                input_ = base / (input_.stem + '.SEN3') / 'xfdumanifest.xml'
+            elif input_.match('*S3*.SEN3'):
+                input_ = input_ / 'xfdumanifest.xml'
 
             graph.save(graph_file)
 
             process = subprocess.run(
-                [self.gpt, str(graph_file), f'-Ssource={input_file}', '-t', output_file],
+                [self.gpt, str(graph_file), f'-Ssource={input_}', '-t', output_file, '-f', format_],
                 stderr=subprocess.PIPE if suppress_stderr else None,
             )
 
@@ -116,22 +133,3 @@ class GPT:
                 error = error_regex.findall(process.stderr.decode())[0]
                 error = '\n'.join(f'    {line}' for line in textwrap.wrap(error, width=66))
                 print(error)
-
-    def run_iter(self, graph, input_list, output_folder='proc', extension='dim', date_only=False, date_time_only=False,
-                 suffix=None, suppress_stderr=True):
-        """ Run the graph for every input on the input list.
-
-         Args:
-             graph (Graph): A snapista Graph object.
-             input_list (list of str): List of input paths.
-             output_folder (str): Folder to save the output to.
-             extension (str): The extension of the output.
-             date_only (bool): Drop everything except the date (and suffix) from the output name.
-             date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
-             suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
-             suppress_stderr (bool): Capture stderr without printing it.
-
-         """
-
-        for input_ in input_list:
-            self.run(graph, input_, output_folder, extension, date_only, date_time_only, suffix, suppress_stderr)
