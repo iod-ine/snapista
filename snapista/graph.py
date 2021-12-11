@@ -37,14 +37,14 @@ class Graph:
         """
 
         if node_id is None:
-            index = sum([operator.name in node_id for node_id in self._node_ids])
-            node_id = f'{operator.name}{index}'
+            index = sum([operator._name in node_id for node_id in self._node_ids])
+            node_id = f'{operator._name}{index}'
 
         node = lxml.etree.SubElement(self._xml, 'node')
         node.set('id', node_id)
 
         name = lxml.etree.SubElement(node, 'operator')
-        name.text = operator.name
+        name.text = operator._name
 
         # add sources
         sources = lxml.etree.SubElement(node, 'sources')
@@ -62,7 +62,7 @@ class Graph:
         node.append(parameters)
 
         self._node_ids.append(node_id)
-        self.suffix += f'_{operator.short_name.lower()}'
+        self.suffix += f'_{operator._short_name.lower()}'
 
     def save(self, file):
         """ Save the graph to a file.

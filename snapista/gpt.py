@@ -129,7 +129,10 @@ class GPT:
             else:
                 # red cross, reset color
                 print(f'\033[31m✗\033[0m {output_file.name}')
-                error_regex = re.compile(r'Error: (.*)')
-                error = error_regex.findall(process.stderr.decode())[0]
-                error = '\n'.join(f'    {line}' for line in textwrap.wrap(error, width=66))
-                print(error)
+
+                # when stderr is not suppressed, it is not captured and the error is visible anyway
+                if suppress_stderr:
+                    error_regex = re.compile(r'Error: (.*)')
+                    error = error_regex.findall(process.stderr.decode())[0]
+                    error = '\n'.join(f'    {line}' for line in textwrap.wrap(error, width=66))
+                    print(error)

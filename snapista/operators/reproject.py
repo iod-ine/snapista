@@ -28,7 +28,7 @@ class Reproject(Operator):
     """
 
     def __init__(self):
-        super(Reproject, self).__init__(name='Reproject', short_name='Reproject')
+        super(Reproject, self).__init__(name='Reproject', short_name='Reprojected')
 
         self.add_delta_bands = False
         self.crs = 'EPSG:4326'

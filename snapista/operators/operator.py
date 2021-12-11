@@ -12,11 +12,11 @@ class Operator:
     def __init__(self, name, short_name):
         """ Create an operator for a SNAP gpt graph. """
 
-        self.name = name  # used in graph construction
-        self.short_name = short_name  # used for output file suffix
+        self._name = name  # used in graph construction
+        self._short_name = short_name  # used for output file suffix
 
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self._name}'
 
     def get_parameters_as_xml_node(self):
         """ Each operator should know how to spit out its own <parameters> node for the xml graph. """
