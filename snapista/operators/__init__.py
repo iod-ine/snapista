@@ -12,3 +12,4 @@ from snapista.operators.reproject import Reproject
 from snapista.operators.band_maths import BandMaths
 from snapista.operators.band_select import BandSelect
 from snapista.operators.add_elevation import AddElevation
+from snapista.operators.add_land_cover import AddLandCover
