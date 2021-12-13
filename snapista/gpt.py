@@ -60,6 +60,9 @@ class GPT:
              suppress_stderr (bool): Capture stderr without printing it.
              output_file_name (str): If given, the automatically generated name will be replaced by this.
 
+            Notes:
+                To keep the name of the product the same, pass an empty strung as the suffix.
+
          """
 
         if isinstance(input_, list):
@@ -117,10 +120,13 @@ class GPT:
 
             graph.save(graph_file)
 
-            process = subprocess.run(
-                [self.gpt, str(graph_file), f'-Ssource={input_}', '-t', output_file, '-f', format_],
-                stderr=subprocess.PIPE if suppress_stderr else None,
-            )
+            gpt_command = [self.gpt, str(graph_file), f'-Ssource={input_}', '-t', output_file, '-f', format_]
+
+            if len(graph._additional_sources) > 0:
+                for name, value in graph._additional_sources.items():
+                    gpt_command.append(f'-S{name}={value}')
+
+            process = subprocess.run(gpt_command, stderr=subprocess.PIPE if suppress_stderr else None)
 
             if suppress_stderr:
                 # move at the beginning of 3rd line up, clear line

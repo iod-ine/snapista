@@ -15,6 +15,13 @@ class Operator:
         self._name = name  # used in graph construction
         self._short_name = short_name  # used for output file suffix
 
+        # some operators have more complicated <sources> than others
+        self._additional_sources = []
+
+        # each additional source should be a dictionary, for example:
+        # {'lxml_element': <lxml.etree.Element>, 'name': 'collocateWith', 'value': <path>}
+        # this way the graph will be able to generate
+
     def __repr__(self):
         return f'{self._name}'
 

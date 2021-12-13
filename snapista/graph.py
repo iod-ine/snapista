@@ -24,6 +24,9 @@ class Graph:
         # a suffix for the output file, listing the processing steps
         self.suffix = ''
 
+        # keep track of special sources that some operators need to run properly
+        self._additional_sources = {}
+
     def __str__(self):
         return lxml.etree.tostring(self._xml, pretty_print=True).decode()
 
@@ -56,6 +59,11 @@ class Graph:
             # if not, then its source is grabbed from the previous operator
             source = lxml.etree.SubElement(sources, 'sourceProduct')
             source.set('refid', self._node_ids[-1])
+
+        if len(operator._additional_sources) > 0:
+            for additional_source in operator._additional_sources:
+                sources.append(additional_source['lxml_element'])
+                self._additional_sources[additional_source['name']] = additional_source['value']
 
         parameters = operator.get_parameters_as_xml_node()
 
