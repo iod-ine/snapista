@@ -22,6 +22,9 @@ class Reproject(Operator):
         resampling (str): The method used for resampling of floating-point raster data: 'Nearest', 'Bilinear', 'Bicubic'
 
     Notes:
+        If colocate_with property is set, the graph will automatically add the needed source variable and GPT will
+        automatically be called with the needed source.
+
         Unused parameters: easting, elevationModelName, height, noDataValue, northing, orientation, orthorectify,
         pixelSizeX, pixelSizeY, referencePixelX, referencePixelY, tileSizeX, tileSizeY, width, wktFile.
 
@@ -35,13 +38,36 @@ class Reproject(Operator):
         self.include_tie_point_grids = True
         self.resampling = 'Nearest'
 
+        self._collocate_with = None
+
+    @property
+    def collocate_with(self):
+        return self._collocate_with
+
+    @collocate_with.setter
+    def collocate_with(self, product):
+        self._collocate_with = product
+        self.crs = None
+
+        collocate_with = lxml.etree.Element('collocateWith')
+        collocate_with.text = '${collocateWith}'
+
+        additional_source = {
+            'lxml_element': collocate_with,
+            'name': 'collocateWith',
+            'value': str(product),
+        }
+
+        self._additional_sources = [additional_source]
+
     def get_parameters_as_xml_node(self):
         """ Generate the <parameters> node to include in the graph. """
 
         parameters = lxml.etree.Element('parameters')
 
-        crs = lxml.etree.SubElement(parameters, 'crs')
-        crs.text = self.crs
+        if self.crs is not None:
+            crs = lxml.etree.SubElement(parameters, 'crs')
+            crs.text = self.crs
 
         resampling = lxml.etree.SubElement(parameters, 'resampling')
         resampling.text = self.resampling
