@@ -21,7 +21,7 @@ class AddLandCover(Operator):
     """
 
     def __init__(self):
-        super(AddLandCover, self).__init__(name='AddLandCover', short_name='AddLandCover')
+        super(AddLandCover, self).__init__(name='AddLandCover', short_name='lc')
 
         self.external_files = []
         self.land_cover_names = ['AAFC Canada Sand Pct']

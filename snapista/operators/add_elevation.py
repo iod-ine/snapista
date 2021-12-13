@@ -23,7 +23,7 @@ class AddElevation(Operator):
     """
 
     def __init__(self):
-        super(AddElevation, self).__init__(name='AddElevation', short_name='AddElevation')
+        super(AddElevation, self).__init__(name='AddElevation', short_name='elev')
 
         self.dem_name = 'SRTM 3Sec'
         self.dem_resampling_method = 'BICUBIC_INTERPOLATION'
@@ -48,6 +48,22 @@ class AddElevation(Operator):
         ]
 
         return dem_names
+
+    @staticmethod
+    def get_available_dem_resampling_methods():
+        """ Get a list of possible DEM resampling methods. """
+
+        dem_resampling_methods = [
+            'NEAREST_NEIGHBOUR',
+            'BILINEAR_INTERPOLATION',
+            'CUBIC_CONVOLUTION',
+            'BISINC_5_POINT_INTERPOLATION',
+            'BISINC_11_POINT_INTERPOLATION',
+            'BISINC_21_POINT_INTERPOLATION',
+            'BICUBIC_INTERPOLATION',
+        ]
+
+        return dem_resampling_methods
 
     def get_parameters_as_xml_node(self):
         """ Generate the <parameters> node to include in the graph. """
