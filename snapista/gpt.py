@@ -45,7 +45,7 @@ class GPT:
         return f'{self.gpt.as_posix()}'
 
     def run(self, graph, input_, output_folder='proc', format_='BEAM-DIMAP', date_only=False, date_time_only=False,
-            prefix=None, suffix=None, suppress_stderr=True):
+            prefix=None, suffix=None, suppress_stderr=True, output_file_name=None):
         """ Run the graph for the input.
 
          Args:
@@ -58,6 +58,7 @@ class GPT:
              prefix (str): Prefix to use for output.
              suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
              suppress_stderr (bool): Capture stderr without printing it.
+             output_file_name (str): If given, the automatically generated name will be replaced by this.
 
          """
 
@@ -73,6 +74,7 @@ class GPT:
                     prefix=prefix,
                     suffix=suffix,
                     suppress_stderr=suppress_stderr,
+                    output_file_name=output_file_name,
                 )
             return
 
@@ -95,6 +97,8 @@ class GPT:
                 date_time_regex = re.compile(r'(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})')
                 date_time = date_time_regex.findall(str(input_))[0]
                 output_file = output_file / '{}{}-{}-{}T{}-{}-{}{}'.format(prefix, *date_time, suffix)
+            elif output_file_name is not None:
+                output_file = output_file / output_file_name
             else:
                 output_file = output_file / f'{prefix}{input_.stem}{suffix}'
 
@@ -102,8 +106,7 @@ class GPT:
             # GPT and SNAP refuse to open Sentinel-3 archives and only open the xfdumanifest.xml
             # file that is within the product folder.
 
-            # TODO: replace the full name with a short summary, i.e. S3 OLCI WFR from <date>
-            print(f'⏳ {input_.stem}')
+            print(f'⏳ {output_file.stem}')
 
             if input_.match('*S3*.zip'):
                 with zipfile.ZipFile(input_) as zf:
