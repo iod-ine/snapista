@@ -27,7 +27,7 @@ class ImportVector(Operator):
         self.separate_shapes = True
         self.vector_file = ''
 
-    def get_parameters_as_xml_node(self):
+    def _get_parameters_as_xml_node(self):
         """ Generate the <parameters> node to include in the graph. """
 
         assert pathlib.Path(self.vector_file).is_file()

@@ -26,6 +26,6 @@ class Operator:
     def __repr__(self):
         return f'{self._name}'
 
-    def get_parameters_as_xml_node(self):
+    def _get_parameters_as_xml_node(self):
         """ Each operator should know how to spit out its own <parameters> node for the xml graph. """
         raise NotImplementedError

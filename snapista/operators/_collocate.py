@@ -63,7 +63,7 @@ class Collocate(Operator):
         self.source_product_paths = []
         self.target_product_type = 'COLLOCATED'
 
-    def get_parameters_as_xml_node(self):
+    def _get_parameters_as_xml_node(self):
         """ Generate the <parameters> node to include in the graph. """
 
         assert self.master_product_name is not None

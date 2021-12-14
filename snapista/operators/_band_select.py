@@ -28,7 +28,7 @@ class BandSelect(Operator):
         self.selected_polarizations = []
         self.source_bands = []
 
-    def get_parameters_as_xml_node(self):
+    def _get_parameters_as_xml_node(self):
         """ Generate the <parameters> node to include in the graph. """
 
         parameters = lxml.etree.Element('parameters')

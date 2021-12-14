@@ -39,7 +39,7 @@ class LandSeaMask(Operator):
         self.source_bands = []
         self.use_srtm = True
 
-    def get_parameters_as_xml_node(self):
+    def _get_parameters_as_xml_node(self):
         """ Generate the <parameters> node to include in the graph. """
 
         assert len(self.geometry) > 0 or self.use_srtm

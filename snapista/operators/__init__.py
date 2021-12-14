@@ -5,15 +5,15 @@ This version of snapista is my personal take on what is originally presented her
 
 """
 
-from snapista.operators.operator import Operator
+from snapista.operators._operator import Operator
 
-from snapista.operators.subset import Subset
-from snapista.operators.resample import Resample
-from snapista.operators.collocate import Collocate
-from snapista.operators.reproject import Reproject
-from snapista.operators.band_maths import BandMaths
-from snapista.operators.band_select import BandSelect
-from snapista.operators.land_sea_mask import LandSeaMask
-from snapista.operators.add_elevation import AddElevation
-from snapista.operators.import_vector import ImportVector
-from snapista.operators.add_land_cover import AddLandCover
+from snapista.operators._subset import Subset
+from snapista.operators._resample import Resample
+from snapista.operators._collocate import Collocate
+from snapista.operators._reproject import Reproject
+from snapista.operators._band_maths import BandMaths
+from snapista.operators._band_select import BandSelect
+from snapista.operators._land_sea_mask import LandSeaMask
+from snapista.operators._add_elevation import AddElevation
+from snapista.operators._import_vector import ImportVector
+from snapista.operators._add_land_cover import AddLandCover

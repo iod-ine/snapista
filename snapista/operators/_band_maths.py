@@ -42,7 +42,7 @@ class BandMaths(Operator):
 
         self._target_bands.append(TargetBand(name, expression, type_, description, unit, no_data_value))
 
-    def get_parameters_as_xml_node(self):
+    def _get_parameters_as_xml_node(self):
         """ Generate the <parameters> node to include in the graph. """
 
         parameters = lxml.etree.Element('parameters')

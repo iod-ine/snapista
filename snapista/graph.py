@@ -65,7 +65,7 @@ class Graph:
                 sources.append(additional_source['lxml_element'])
                 self._additional_sources[additional_source['name']] = additional_source['value']
 
-        parameters = operator.get_parameters_as_xml_node()
+        parameters = operator._get_parameters_as_xml_node()
 
         node.append(parameters)
 
