@@ -22,7 +22,7 @@ class ImportVector(Operator):
     """
 
     def __init__(self):
-        super(ImportVector, self).__init__(name='Import-Vector', short_name='iv')
+        super(ImportVector, self).__init__(name='Import-Vector', short_name=None)
 
         self.separate_shapes = True
         self.vector_file = ''

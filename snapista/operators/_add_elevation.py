@@ -23,7 +23,7 @@ class AddElevation(Operator):
     """
 
     def __init__(self):
-        super(AddElevation, self).__init__(name='AddElevation', short_name='elev')
+        super(AddElevation, self).__init__(name='AddElevation', short_name=None)
 
         self.dem_name = 'SRTM 3Sec'
         self.dem_resampling_method = 'BICUBIC_INTERPOLATION'
