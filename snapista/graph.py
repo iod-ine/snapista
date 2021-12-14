@@ -53,7 +53,7 @@ class Graph:
         sources = lxml.etree.SubElement(node, 'sources')
         if len(self._node_ids) == 0:
             # if it's the first operator added, its source is ${source}
-            source = lxml.etree.SubElement(sources, 'source')
+            source = lxml.etree.SubElement(sources, operator._mandatory_source_name)
             source.text = '${source}'
         else:
             # if not, then its source is grabbed from the previous operator
@@ -70,7 +70,8 @@ class Graph:
         node.append(parameters)
 
         self._node_ids.append(node_id)
-        self.suffix += f'_{operator._short_name.lower()}'
+        if operator._short_name is not None:
+            self.suffix += f'_{operator._short_name.lower()}'
 
     def save(self, file):
         """ Save the graph to a file.
