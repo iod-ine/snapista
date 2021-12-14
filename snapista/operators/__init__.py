@@ -12,6 +12,7 @@ from snapista.operators.collocate import Collocate
 from snapista.operators.reproject import Reproject
 from snapista.operators.band_maths import BandMaths
 from snapista.operators.band_select import BandSelect
+from snapista.operators.land_sea_mask import LandSeaMask
 from snapista.operators.add_elevation import AddElevation
 from snapista.operators.import_vector import ImportVector
 from snapista.operators.add_land_cover import AddLandCover
