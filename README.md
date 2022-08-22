@@ -29,7 +29,7 @@ resample.reference_band = 'B2'
 
 import_vector = snapista.operators.ImportVector()
 import_vector.separate_shapes = False
-import_vector.vector_file = '/home/codycofan/Vectors/Land.shp'
+import_vector.vector_file = '/home/greg/Vectors/Land.shp'
 
 land_sea_mask = snapista.operators.LandSeaMask()
 land_sea_mask.use_srtm = False
@@ -54,7 +54,8 @@ gpt.run(
 ```
 
 ### Installation
-I don't have an installation option yet. I will look into uploading it to PyPI as soon as I come with a cool name that makes it clear that that is not the original snapista.
+I don't have an installation option yet.
+I will look into uploading it to PyPI as soon as I come with a cool name that makes it clear that is not the original snapista.
 To run tests, I manually insert the path to the local repository into Python's `sys.path`.
 
 ```python
