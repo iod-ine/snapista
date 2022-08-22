@@ -18,10 +18,10 @@ import subprocess
 
 
 class GPT:
-    """ A wrapper for the SNAP Graph Processing Tool. """
+    """A wrapper for the SNAP Graph Processing Tool."""
 
     def __init__(self, gpt):
-        """ Initiate a new GPT object.
+        """Initiate a new GPT object.
 
         When a GPT object os initiated, a call is made to the provided gpt executable using the subprocess module.
         This call guarantees that the path is correct.
@@ -35,35 +35,46 @@ class GPT:
 
         try:
             # we can check if the path is legit by calling `gpt -h` and looking at the stdout
-            process = subprocess.run([self.gpt, '-h'], capture_output=True, check=True)
+            process = subprocess.run([self.gpt, "-h"], capture_output=True, check=True)
             stdout = process.stdout.decode()
-            assert stdout.startswith('Usage:\n  gpt <op>|<graph-file> [options]')
+            assert stdout.startswith("Usage:\n  gpt <op>|<graph-file> [options]")
         except (AssertionError, PermissionError):
-            raise ValueError(f'{self.gpt.as_posix()} is not gpt!')
+            raise ValueError(f"{self.gpt.as_posix()} is not gpt!")
 
     def __repr__(self):
-        return f'{self.gpt.as_posix()}'
+        return f"{self.gpt.as_posix()}"
 
-    def run(self, graph, input_, output_folder='proc', format_='BEAM-DIMAP', date_only=False, date_time_only=False,
-            prefix=None, suffix=None, suppress_stderr=True, output_file_name=None):
-        """ Run the graph for the input.
+    def run(
+        self,
+        graph,
+        input_,
+        output_folder="proc",
+        format_="BEAM-DIMAP",
+        date_only=False,
+        date_time_only=False,
+        prefix=None,
+        suffix=None,
+        suppress_stderr=True,
+        output_file_name=None,
+    ):
+        """Run the graph for the input.
 
-         Args:
-             graph (Graph): A snapista Graph object.
-             input_ (str, os.PathLike, or list): Input or list of inputs.
-             output_folder (str): Folder to save the output to.
-             format_ (str): The extension of the output, e.g. 'GeoTIFF', 'HDF5', 'BEAM-DIMAP'.
-             date_only (bool): Drop everything except the date (and suffix) from the output name.
-             date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
-             prefix (str): Prefix to use for output.
-             suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
-             suppress_stderr (bool): Capture stderr without printing it.
-             output_file_name (str): If given, the automatically generated name will be replaced by this.
+        Args:
+            graph (Graph): A snapista Graph object.
+            input_ (str, os.PathLike, or list): Input or list of inputs.
+            output_folder (str): Folder to save the output to.
+            format_ (str): The extension of the output, e.g. 'GeoTIFF', 'HDF5', 'BEAM-DIMAP'.
+            date_only (bool): Drop everything except the date (and suffix) from the output name.
+            date_time_only (bool): Drop everything except the date and time (and suffix) from the output name.
+            prefix (str): Prefix to use for output.
+            suffix (str): Suffix to use for output. By default, will consist of a list of applied operators.
+            suppress_stderr (bool): Capture stderr without printing it.
+            output_file_name (str): If given, the automatically generated name will be replaced by this.
 
-            Notes:
-                To keep the name of the product the same, pass an empty strung as the suffix.
+           Notes:
+               To keep the name of the product the same, pass an empty strung as the suffix.
 
-         """
+        """
 
         if isinstance(input_, list):
             for product in input_:
@@ -85,63 +96,79 @@ class GPT:
 
         with tempfile.TemporaryDirectory() as temp_dir:
             base = pathlib.Path(temp_dir)
-            graph_file = base / 'graph.xml'
-            prefix = '' if prefix is None else prefix
+            graph_file = base / "graph.xml"
+            prefix = "" if prefix is None else prefix
             suffix = graph.suffix if suffix is None else suffix
 
             output_file = pathlib.Path(output_folder)
             output_file.mkdir(exist_ok=True)
 
             if date_only:
-                date_regex = re.compile(r'(\d{4})(\d{2})(\d{2})T\d{6}')
+                date_regex = re.compile(r"(\d{4})(\d{2})(\d{2})T\d{6}")
                 date = date_regex.findall(str(input_))[0]
-                output_file = output_file / '{}{}-{}-{}{}'.format(prefix, *date, suffix)
+                output_file = output_file / "{}{}-{}-{}{}".format(prefix, *date, suffix)
             elif date_time_only:
-                date_time_regex = re.compile(r'(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})')
+                date_time_regex = re.compile(
+                    r"(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})"
+                )
                 date_time = date_time_regex.findall(str(input_))[0]
-                output_file = output_file / '{}{}-{}-{}T{}-{}-{}{}'.format(prefix, *date_time, suffix)
+                output_file = output_file / "{}{}-{}-{}T{}-{}-{}{}".format(
+                    prefix, *date_time, suffix
+                )
             elif output_file_name is not None:
                 output_file = output_file / output_file_name
             else:
-                output_file = output_file / f'{prefix}{input_.stem}{suffix}'
+                output_file = output_file / f"{prefix}{input_.stem}{suffix}"
 
             # Sentinel-3 is a special snowflake in terms of reading in the products.
             # GPT and SNAP refuse to open Sentinel-3 archives and only open the xfdumanifest.xml
             # file that is within the product folder.
 
-            print(f'⏳ {output_file.stem}')
+            print(f"⏳ {output_file.stem}")
 
-            if input_.match('*S3*.zip'):
+            if input_.match("*S3*.zip"):
                 with zipfile.ZipFile(input_) as zf:
                     zf.extractall(temp_dir)
-                input_ = base / (input_.stem + '.SEN3') / 'xfdumanifest.xml'
-            elif input_.match('*S3*.SEN3'):
-                input_ = input_ / 'xfdumanifest.xml'
+                input_ = base / (input_.stem + ".SEN3") / "xfdumanifest.xml"
+            elif input_.match("*S3*.SEN3"):
+                input_ = input_ / "xfdumanifest.xml"
 
             graph.save(graph_file)
 
-            gpt_command = [self.gpt, str(graph_file), f'-Ssource={input_}', '-t', output_file, '-f', format_]
+            gpt_command = [
+                self.gpt,
+                str(graph_file),
+                f"-Ssource={input_}",
+                "-t",
+                output_file,
+                "-f",
+                format_,
+            ]
 
             if len(graph._additional_sources) > 0:
                 for name, value in graph._additional_sources.items():
-                    gpt_command.append(f'-S{name}={value}')
+                    gpt_command.append(f"-S{name}={value}")
 
-            process = subprocess.run(gpt_command, stderr=subprocess.PIPE if suppress_stderr else None)
+            process = subprocess.run(
+                gpt_command, stderr=subprocess.PIPE if suppress_stderr else None
+            )
 
             if suppress_stderr:
                 # move at the beginning of 3rd line up, clear line
-                print(f'\033[3F\033[J', end='')
+                print(f"\033[3F\033[J", end="")
 
             if process.returncode == 0:
                 # green checkmark, reset color
-                print(f'\033[32m✔\033[0m {output_file.name}')
+                print(f"\033[32m✔\033[0m {output_file.name}")
             else:
                 # red cross, reset color
-                print(f'\033[31m✗\033[0m {output_file.name}')
+                print(f"\033[31m✗\033[0m {output_file.name}")
 
                 # when stderr is not suppressed, it is not captured and the error is visible anyway
                 if suppress_stderr:
-                    error_regex = re.compile(r'Error: (.*)')
+                    error_regex = re.compile(r"Error: (.*)")
                     error = error_regex.findall(process.stderr.decode())[0]
-                    error = '\n'.join(f'    {line}' for line in textwrap.wrap(error, width=66))
+                    error = "\n".join(
+                        f"    {line}" for line in textwrap.wrap(error, width=66)
+                    )
                     print(error)

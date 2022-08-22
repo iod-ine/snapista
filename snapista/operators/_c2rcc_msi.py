@@ -13,7 +13,7 @@ from snapista.operators import Operator
 
 
 class C2RCC_MSI(Operator):
-    """ Perform atmospheric correction and IOP retrieval with uncertainties on Sentinel-2 MSI L1C data products.
+    """Perform atmospheric correction and IOP retrieval with uncertainties on Sentinel-2 MSI L1C data products.
 
     Attributes:
         alternative_nn_path (str): Path to an alternative set of neuronal nets.
@@ -56,7 +56,7 @@ class C2RCC_MSI(Operator):
     """
 
     def __init__(self):
-        super(C2RCC_MSI, self).__init__(name='c2rcc.msi', short_name='c2rcc')
+        super(C2RCC_MSI, self).__init__(name="c2rcc.msi", short_name="c2rcc")
 
         self.alternative_nn_path = None
         self.atmospheric_aux_data_path = None
@@ -64,7 +64,7 @@ class C2RCC_MSI(Operator):
         self.chl_fac = 21.0
         self.derive_rw_from_path_and_transmittance = False
         self.elevation = 0.0
-        self.net_set = 'C2RCC-Nets'
+        self.net_set = "C2RCC-Nets"
 
         self.output_ac_reflectance = True
         self.output_as_rrs = False
@@ -88,7 +88,7 @@ class C2RCC_MSI(Operator):
         self.threshold_r_tosa_oos = 0.05
         self.tsm_exp = 0.942
         self.tsm_fac = 1.06
-        self.valid_pixel_expression = 'B8 > 0 && B8 < 0.1'
+        self.valid_pixel_expression = "B8 > 0 && B8 < 0.1"
 
         self._ncep_start_product = None
         self._ncep_end_product = None
@@ -134,98 +134,110 @@ class C2RCC_MSI(Operator):
         raise NotImplementedError
 
     def _get_parameters_as_xml_node(self):
-        """ Generate the <parameters> node to include in the graph. """
+        """Generate the <parameters> node to include in the graph."""
 
-        parameters = lxml.etree.Element('parameters')
+        parameters = lxml.etree.Element("parameters")
 
-        valid_pixel_expression = lxml.etree.SubElement(parameters, 'validPixelExpression')
+        valid_pixel_expression = lxml.etree.SubElement(
+            parameters, "validPixelExpression"
+        )
         valid_pixel_expression.text = self.valid_pixel_expression
         # valid_pixel_expression.text = xml.sax.saxutils.escape(self.valid_pixel_expression)
 
-        salinity = lxml.etree.SubElement(parameters, 'salinity')
+        salinity = lxml.etree.SubElement(parameters, "salinity")
         salinity.text = str(self.salinity)
 
-        temperature = lxml.etree.SubElement(parameters, 'temperature')
+        temperature = lxml.etree.SubElement(parameters, "temperature")
         temperature.text = str(self.temperature)
 
-        ozone = lxml.etree.SubElement(parameters, 'ozone')
+        ozone = lxml.etree.SubElement(parameters, "ozone")
         ozone.text = str(self.ozone)
 
-        press = lxml.etree.SubElement(parameters, 'press')
+        press = lxml.etree.SubElement(parameters, "press")
         press.text = str(self.press)
 
-        elevation = lxml.etree.SubElement(parameters, 'elevation')
+        elevation = lxml.etree.SubElement(parameters, "elevation")
         elevation.text = str(self.elevation)
 
-        tsm_fac = lxml.etree.SubElement(parameters, 'TSMfac')
+        tsm_fac = lxml.etree.SubElement(parameters, "TSMfac")
         tsm_fac.text = str(self.tsm_fac)
 
-        tsm_exp = lxml.etree.SubElement(parameters, 'TSMexp')
+        tsm_exp = lxml.etree.SubElement(parameters, "TSMexp")
         tsm_exp.text = str(self.tsm_exp)
 
-        chl_exp = lxml.etree.SubElement(parameters, 'CHLexp')
+        chl_exp = lxml.etree.SubElement(parameters, "CHLexp")
         chl_exp.text = str(self.chl_exp)
 
-        chl_fac = lxml.etree.SubElement(parameters, 'CHLfac')
+        chl_fac = lxml.etree.SubElement(parameters, "CHLfac")
         chl_fac.text = str(self.chl_fac)
 
-        threshold_r_tosa_oos = lxml.etree.SubElement(parameters, 'thresholdRtosaOOS')
+        threshold_r_tosa_oos = lxml.etree.SubElement(parameters, "thresholdRtosaOOS")
         threshold_r_tosa_oos.text = str(self.threshold_r_tosa_oos)
 
-        threshold_ac_reflectance_oos = lxml.etree.SubElement(parameters, 'thresholdAcReflecOos')
+        threshold_ac_reflectance_oos = lxml.etree.SubElement(
+            parameters, "thresholdAcReflecOos"
+        )
         threshold_ac_reflectance_oos.text = str(self.threshold_ac_reflectance_oos)
 
-        threshold_cloud_t_down_865 = lxml.etree.SubElement(parameters, 'thresholdCloudTDown865')
+        threshold_cloud_t_down_865 = lxml.etree.SubElement(
+            parameters, "thresholdCloudTDown865"
+        )
         threshold_cloud_t_down_865.text = str(self.threshold_cloud_t_down_865)
 
         if self.atmospheric_aux_data_path is not None:
-            atmospheric_aux_data_path = lxml.etree.SubElement(parameters, 'atmosphericAuxDataPath')
+            atmospheric_aux_data_path = lxml.etree.SubElement(
+                parameters, "atmosphericAuxDataPath"
+            )
             atmospheric_aux_data_path.text = str(self.atmospheric_aux_data_path)
 
         if self.alternative_nn_path is not None:
-            alternative_nn_path = lxml.etree.SubElement(parameters, 'alternativeNNPath')
+            alternative_nn_path = lxml.etree.SubElement(parameters, "alternativeNNPath")
             alternative_nn_path.text = str(self.alternative_nn_path)
 
-        net_set = lxml.etree.SubElement(parameters, 'netSet')
+        net_set = lxml.etree.SubElement(parameters, "netSet")
         net_set.text = self.net_set
 
-        output_as_rrs = lxml.etree.SubElement(parameters, 'outputAsRrs')
-        output_as_rrs.text = 'true' if self.output_as_rrs else 'false'
+        output_as_rrs = lxml.etree.SubElement(parameters, "outputAsRrs")
+        output_as_rrs.text = "true" if self.output_as_rrs else "false"
 
-        derive_rw_from_path_and_transmittance = lxml.etree.SubElement(parameters, 'deriveRwFromPathAndTransmittance')
-        derive_rw_from_path_and_transmittance.text = 'true' if self.derive_rw_from_path_and_transmittance else 'false'
+        derive_rw_from_path_and_transmittance = lxml.etree.SubElement(
+            parameters, "deriveRwFromPathAndTransmittance"
+        )
+        derive_rw_from_path_and_transmittance.text = (
+            "true" if self.derive_rw_from_path_and_transmittance else "false"
+        )
 
-        output_r_toa = lxml.etree.SubElement(parameters, 'outputRtoa')
-        output_r_toa.text = 'true' if self.output_r_toa else 'false'
+        output_r_toa = lxml.etree.SubElement(parameters, "outputRtoa")
+        output_r_toa.text = "true" if self.output_r_toa else "false"
 
-        output_r_tosa_gc = lxml.etree.SubElement(parameters, 'outputRtosaGc')
-        output_r_tosa_gc.text = 'true' if self.output_r_tosa_gc else 'false'
+        output_r_tosa_gc = lxml.etree.SubElement(parameters, "outputRtosaGc")
+        output_r_tosa_gc.text = "true" if self.output_r_tosa_gc else "false"
 
-        output_r_tosa_gc_ann = lxml.etree.SubElement(parameters, 'outputRtosaGcAann')
-        output_r_tosa_gc_ann.text = 'true' if self.output_r_tosa_gc_ann else 'false'
+        output_r_tosa_gc_ann = lxml.etree.SubElement(parameters, "outputRtosaGcAann")
+        output_r_tosa_gc_ann.text = "true" if self.output_r_tosa_gc_ann else "false"
 
-        output_r_path = lxml.etree.SubElement(parameters, 'outputRpath')
-        output_r_path.text = 'true' if self.output_r_path else 'false'
+        output_r_path = lxml.etree.SubElement(parameters, "outputRpath")
+        output_r_path.text = "true" if self.output_r_path else "false"
 
-        output_t_down = lxml.etree.SubElement(parameters, 'outputTdown')
-        output_t_down.text = 'true' if self.output_t_down else 'false'
+        output_t_down = lxml.etree.SubElement(parameters, "outputTdown")
+        output_t_down.text = "true" if self.output_t_down else "false"
 
-        output_t_up = lxml.etree.SubElement(parameters, 'outputTup')
-        output_t_up.text = 'true' if self.output_t_up else 'false'
+        output_t_up = lxml.etree.SubElement(parameters, "outputTup")
+        output_t_up.text = "true" if self.output_t_up else "false"
 
-        output_ac_reflectance = lxml.etree.SubElement(parameters, 'outputAcReflectance')
-        output_ac_reflectance.text = 'true' if self.output_ac_reflectance else 'false'
+        output_ac_reflectance = lxml.etree.SubElement(parameters, "outputAcReflectance")
+        output_ac_reflectance.text = "true" if self.output_ac_reflectance else "false"
 
-        output_r_hown = lxml.etree.SubElement(parameters, 'outputRhown')
-        output_r_hown.text = 'true' if self.output_r_hown else 'false'
+        output_r_hown = lxml.etree.SubElement(parameters, "outputRhown")
+        output_r_hown.text = "true" if self.output_r_hown else "false"
 
-        output_oos = lxml.etree.SubElement(parameters, 'outputOos')
-        output_oos.text = 'true' if self.output_oos else 'false'
+        output_oos = lxml.etree.SubElement(parameters, "outputOos")
+        output_oos.text = "true" if self.output_oos else "false"
 
-        output_kd = lxml.etree.SubElement(parameters, 'outputKd')
-        output_kd.text = 'true' if self.output_kd else 'false'
+        output_kd = lxml.etree.SubElement(parameters, "outputKd")
+        output_kd.text = "true" if self.output_kd else "false"
 
-        output_uncertainties = lxml.etree.SubElement(parameters, 'outputUncertainties')
-        output_uncertainties.text = 'true' if self.output_uncertainties else 'false'
+        output_uncertainties = lxml.etree.SubElement(parameters, "outputUncertainties")
+        output_uncertainties.text = "true" if self.output_uncertainties else "false"
 
         return parameters

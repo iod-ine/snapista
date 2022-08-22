@@ -11,7 +11,7 @@ from snapista.operators import Operator
 
 
 class Resample(Operator):
-    """ Resample a multi-size source product to a single-size target product.
+    """Resample a multi-size source product to a single-size target product.
 
     Attributes:
         downsampling (str): The method used for aggregation (downsampling to a coarser resolution).
@@ -35,47 +35,51 @@ class Resample(Operator):
     """
 
     def __init__(self):
-        super(Resample, self).__init__(name='Resample', short_name='resampled')
+        super(Resample, self).__init__(name="Resample", short_name="resampled")
 
-        self._mandatory_source_name = 'sourceProduct'
+        self._mandatory_source_name = "sourceProduct"
 
-        self.downsampling = 'First'
-        self.flag_downsampling = 'First'
+        self.downsampling = "First"
+        self.flag_downsampling = "First"
         self.reference_band = None
         self.resample_on_pyramid_levels = True
         self.target_height = None
         self.target_resolution = None
         self.target_width = None
-        self.upsampling = 'Nearest'
+        self.upsampling = "Nearest"
 
     def _get_parameters_as_xml_node(self):
-        """ Generate the <parameters> node to include in the graph. """
+        """Generate the <parameters> node to include in the graph."""
 
-        parameters = lxml.etree.Element('parameters')
+        parameters = lxml.etree.Element("parameters")
 
         if self.reference_band is not None:
-            reference_band = lxml.etree.SubElement(parameters, 'referenceBand')
+            reference_band = lxml.etree.SubElement(parameters, "referenceBand")
             reference_band.text = self.reference_band
         else:
-            target_width = lxml.etree.SubElement(parameters, 'targetWidth')
+            target_width = lxml.etree.SubElement(parameters, "targetWidth")
             target_width.text = str(self.target_width)
 
-            target_height = lxml.etree.SubElement(parameters, 'targetHeight')
+            target_height = lxml.etree.SubElement(parameters, "targetHeight")
             target_height.text = str(self.target_height)
 
-            target_resolution = lxml.etree.SubElement(parameters, 'targetResolution')
+            target_resolution = lxml.etree.SubElement(parameters, "targetResolution")
             target_resolution.text = str(self.target_resolution)
 
-        upsampling = lxml.etree.SubElement(parameters, 'upsampling')
+        upsampling = lxml.etree.SubElement(parameters, "upsampling")
         upsampling.text = self.upsampling
 
-        downsampling = lxml.etree.SubElement(parameters, 'downsampling')
+        downsampling = lxml.etree.SubElement(parameters, "downsampling")
         downsampling.text = self.downsampling
 
-        flag_downsampling = lxml.etree.SubElement(parameters, 'flagDownsampling')
+        flag_downsampling = lxml.etree.SubElement(parameters, "flagDownsampling")
         flag_downsampling.text = self.flag_downsampling
 
-        resample_on_pyramid_levels = lxml.etree.SubElement(parameters, 'resampleOnPyramidLevels')
-        resample_on_pyramid_levels.text = 'true' if self.resample_on_pyramid_levels else 'false'
+        resample_on_pyramid_levels = lxml.etree.SubElement(
+            parameters, "resampleOnPyramidLevels"
+        )
+        resample_on_pyramid_levels.text = (
+            "true" if self.resample_on_pyramid_levels else "false"
+        )
 
         return parameters

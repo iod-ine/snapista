@@ -11,7 +11,7 @@ from snapista.operators import Operator
 
 
 class LandSeaMask(Operator):
-    """ Turn all pixels on land or sea into no-data values.
+    """Turn all pixels on land or sea into no-data values.
 
     Attributes:
         geometry (string): Name of the vector mask to use (as named in the product).
@@ -30,9 +30,9 @@ class LandSeaMask(Operator):
     """
 
     def __init__(self):
-        super(LandSeaMask, self).__init__(name='Land-Sea-Mask', short_name='masked')
+        super(LandSeaMask, self).__init__(name="Land-Sea-Mask", short_name="masked")
 
-        self.geometry = ''
+        self.geometry = ""
         self.invert_geometry = False
         self.mask_out_land = True
         self.shoreline_extension = 0
@@ -40,29 +40,29 @@ class LandSeaMask(Operator):
         self.use_srtm = True
 
     def _get_parameters_as_xml_node(self):
-        """ Generate the <parameters> node to include in the graph. """
+        """Generate the <parameters> node to include in the graph."""
 
         assert len(self.geometry) > 0 or self.use_srtm
 
-        parameters = lxml.etree.Element('parameters')
+        parameters = lxml.etree.Element("parameters")
 
         if len(self.source_bands) > 0:
-            source_bands = lxml.etree.SubElement(parameters, 'sourceBands')
-            source_bands.text = ','.join(self.source_bands)
+            source_bands = lxml.etree.SubElement(parameters, "sourceBands")
+            source_bands.text = ",".join(self.source_bands)
 
-        land_mask = lxml.etree.SubElement(parameters, 'landMask')
-        land_mask.text = 'true' if self.mask_out_land else 'false'
+        land_mask = lxml.etree.SubElement(parameters, "landMask")
+        land_mask.text = "true" if self.mask_out_land else "false"
 
-        use_srtm = lxml.etree.SubElement(parameters, 'useSRTM')
-        use_srtm.text = 'true' if self.use_srtm else 'false'
+        use_srtm = lxml.etree.SubElement(parameters, "useSRTM")
+        use_srtm.text = "true" if self.use_srtm else "false"
 
-        geometry = lxml.etree.SubElement(parameters, 'geometry')
+        geometry = lxml.etree.SubElement(parameters, "geometry")
         geometry.text = self.geometry
 
-        invert_geometry = lxml.etree.SubElement(parameters, 'invertGeometry')
-        invert_geometry.text = 'true' if self.invert_geometry else 'false'
+        invert_geometry = lxml.etree.SubElement(parameters, "invertGeometry")
+        invert_geometry.text = "true" if self.invert_geometry else "false"
 
-        shoreline_extension = lxml.etree.SubElement(parameters, 'shorelineExtension')
+        shoreline_extension = lxml.etree.SubElement(parameters, "shorelineExtension")
         shoreline_extension.text = str(self.shoreline_extension)
 
         return parameters
